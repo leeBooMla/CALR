@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: ClusterContrast
+Version: 1.0.0
+Summary: Cluster Contrast for Unsupervised Person Re-Identification
+Author: GuangYuan wang
+Author-email: yixuan.wgy@alibaba-inc.com
+Keywords: Unsupervised Learning,Contrastive Learning,Object Re-identification
+License-File: LICENSE
