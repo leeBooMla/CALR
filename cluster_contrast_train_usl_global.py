@@ -5,6 +5,7 @@ from calendar import c
 from itertools import count
 from math import degrees
 import os.path as osp
+import os
 import random
 from matplotlib.font_manager import weight_dict
 import numpy as np
@@ -12,7 +13,7 @@ import sys
 import collections
 import time
 from datetime import timedelta
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from pandas import array
 from collections import Counter
 
@@ -46,7 +47,8 @@ from clustercontrast.visualization import evaluate_cluster, visualization_cam
 from evaluation.evaluate import evaluate_global, evaluate_local, evaluate_refine
 
 start_epoch = best_mAP = 0
-CUDA_VISIBLE_DEVICES=0,1,2,3
+#CUDA_VISIBLE_DEVICES=3,4
+os.environ["CUDA_VISIBLE_DEVICES"] = "3,4"
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -174,10 +176,10 @@ def main_worker(args):
     for epoch in range(args.epochs):
         # generate new dataset and calculate cluster centers
         @torch.no_grad()
-        def generate_cluster_features(labels, features):
+        def generate_cluster_features(pseudo_labels, features):
             centers = collections.defaultdict(list)
 
-            for i, label in enumerate(labels):
+            for i, label in enumerate(pseudo_labels):
                 if label == -1:
                     continue
                 centers[labels[i]].append(features[i])
@@ -188,6 +190,22 @@ def main_worker(args):
 
             centers = torch.stack(centers, dim=0)
             return centers
+        
+        def generate_cluster_weights(pseudo_labels, dataset):
+            cluster_cid = collections.defaultdict(list)
+            weights = list
+
+            for i, ((_, _, cid), label) in enumerate(zip(sorted(dataset.train), pseudo_labels)):
+                if label != -1:
+                    cluster_cid[label].append(cid)
+            for idx in sorted(cluster_cid.keys()):
+                camera_num = Counter(cluster_cid[idx])
+                weight = torch.softmax(torch.tensor(camera_num.values))
+                weight = -torch.sum(weight*torch.log(weight))
+                weights.append(weight)
+            
+            weights = torch.stack(weights, dim=0)
+            return weights
 
         with torch.no_grad():
             print('==> Create pseudo labels for unlabeled data')
@@ -253,10 +271,10 @@ def main_worker(args):
                         fname_cam[cam].append(f)
                         pseudo_labels_cam[cam].append(pid)
                     cluster_cam[cam] = get_cluster(pseudo_labels_cam[cam])
-                    '''per_cam_labels[cam] = []
+                    per_cam_labels[cam] = []
                     for fname_l in fname_cam[cam]:
                         per_cam_labels[cam].append(labels[fname.index(fname_l)])
-                    ave_precision_local,  ave_recall_local, ave_fscore_local, ave_precision_local_b,  ave_recall_local_b, ave_fscore_local_b, expansion_local, nmi_local = evaluate_local(epoch, len(labels), per_cam_labels[cam], pseudo_labels_cam[cam], ave_precision_local,  ave_recall_local, ave_fscore_local, ave_precision_local_b,  ave_recall_local_b, ave_fscore_local_b, expansion_local, nmi_local)'''
+                    ave_precision_local,  ave_recall_local, ave_fscore_local, ave_precision_local_b,  ave_recall_local_b, ave_fscore_local_b, expansion_local, nmi_local = evaluate_local(epoch, len(labels), per_cam_labels[cam], pseudo_labels_cam[cam], ave_precision_local,  ave_recall_local, ave_fscore_local, ave_precision_local_b,  ave_recall_local_b, ave_fscore_local_b, expansion_local, nmi_local)
                 count = 0
                 #decay = 0.5*(1+math.cos(math.pi*epoch/(3*args.epochs)))
                 for label, node in infomation_node.items():
@@ -296,6 +314,7 @@ def main_worker(args):
 
 
         cluster_features = generate_cluster_features(pseudo_labels, features)
+        cluster_weights = generate_cluster_weights(pseudo_labels, dataset)
 
         del cluster_loader, features
 
@@ -401,7 +420,7 @@ if __name__ == '__main__':
     # path
     working_dir = osp.dirname(osp.abspath(__file__))
     parser.add_argument('--data-dir', type=str, metavar='PATH',
-                        default=osp.join( '/data1/lpn/dataset'))
+                        default=osp.join( '/data/lpn/dataset'))
     parser.add_argument('--logs-dir', type=str, metavar='PATH',
                         default=osp.join(working_dir, 'logs/market/Cam_AG'))
     parser.add_argument('--pooling-type', type=str, default='gem')
