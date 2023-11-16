@@ -48,7 +48,7 @@ from evaluation.evaluate import evaluate_global, evaluate_local, evaluate_refine
 
 start_epoch = best_mAP = 0
 #CUDA_VISIBLE_DEVICES=3,4
-os.environ["CUDA_VISIBLE_DEVICES"] = "3,4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -182,7 +182,7 @@ def main_worker(args):
             for i, label in enumerate(pseudo_labels):
                 if label == -1:
                     continue
-                centers[labels[i]].append(features[i])
+                centers[pseudo_labels[i]].append(features[i])
 
             centers = [
                 torch.stack(centers[idx], dim=0).mean(0) for idx in sorted(centers.keys())
@@ -193,18 +193,19 @@ def main_worker(args):
         
         def generate_cluster_weights(pseudo_labels, dataset):
             cluster_cid = collections.defaultdict(list)
-            weights = list
+            weights = torch.ones(max(pseudo_labels)+1)
 
             for i, ((_, _, cid), label) in enumerate(zip(sorted(dataset.train), pseudo_labels)):
                 if label != -1:
                     cluster_cid[label].append(cid)
+
             for idx in sorted(cluster_cid.keys()):
-                camera_num = Counter(cluster_cid[idx])
-                weight = torch.softmax(torch.tensor(camera_num.values))
+                camera_num = torch.tensor(list(Counter(cluster_cid[idx]).values()), dtype=torch.float64)
+                weight = camera_num/torch.sum(camera_num)
                 weight = -torch.sum(weight*torch.log(weight))
-                weights.append(weight)
-            
-            weights = torch.stack(weights, dim=0)
+                weight = torch.log(weight+1)
+                weights[idx] = weight
+
             return weights
 
         with torch.no_grad():
@@ -323,6 +324,7 @@ def main_worker(args):
                                momentum=args.momentum, use_hard=args.use_hard).cuda()
 
         memory.features = F.normalize(cluster_features, dim=1).cuda()
+        memory.weights = cluster_weights.cuda()
         trainer.memory = memory
         pseudo_labeled_dataset = []
 
@@ -372,11 +374,11 @@ if __name__ == '__main__':
     # data
     parser.add_argument('-d', '--dataset', type=str, default='msmt17',
                         choices=datasets.names())
-    parser.add_argument('-b', '--batch-size', type=int, default=64)
+    parser.add_argument('-b', '--batch-size', type=int, default=256)
     parser.add_argument('-j', '--workers', type=int, default=4)
     parser.add_argument('--height', type=int, default=256, help="input height")
     parser.add_argument('--width', type=int, default=128, help="input width")
-    parser.add_argument('--num-instances', type=int, default=16,
+    parser.add_argument('--num-instances', type=int, default=4,
                         help="each minibatch consist of "
                              "(batch_size // num_instances) identities, and "
                              "each identity has num_instances instances, "
@@ -408,13 +410,13 @@ if __name__ == '__main__':
                         help="learning rate")
     parser.add_argument('--weight-decay', type=float, default=5e-4)
     parser.add_argument('--epochs', type=int, default=70)
-    parser.add_argument('--iters', type=int, default=200)
+    parser.add_argument('--iters', type=int, default=400)
     parser.add_argument('--step-size', type=int, default=20)
 
     # training configs
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--print-freq', type=int, default=10)
-    parser.add_argument('--eval-step', type=int, default=5)
+    parser.add_argument('--eval-step', type=int, default=1)
     parser.add_argument('--temp', type=float, default=0.05,
                         help="temperature for scaling contrastive loss")
     # path
@@ -422,7 +424,7 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, metavar='PATH',
                         default=osp.join( '/data/lpn/dataset'))
     parser.add_argument('--logs-dir', type=str, metavar='PATH',
-                        default=osp.join(working_dir, 'logs/market/Cam_AG'))
+                        default=osp.join(working_dir, 'logs/msmt/Cam_AG'))
     parser.add_argument('--pooling-type', type=str, default='gem')
     parser.add_argument('--use-hard', action="store_true")
     parser.add_argument('--no-cam', action="store_true")

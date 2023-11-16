@@ -85,6 +85,7 @@ class ClusterMemory(nn.Module, ABC):
         self.temp = temp
         self.use_hard = use_hard
 
+        self.register_buffer('weights', torch.zeros(num_samples))
         self.register_buffer('features', torch.zeros(num_samples, num_features))
 
     def forward(self, inputs, targets):
@@ -96,5 +97,6 @@ class ClusterMemory(nn.Module, ABC):
             outputs = cm(inputs, targets, self.features, self.momentum)
 
         outputs /= self.temp
+        outputs = outputs*self.weights.unsqueeze(0)
         loss = F.cross_entropy(outputs, targets)
         return loss
