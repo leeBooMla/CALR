@@ -1,12 +1,7 @@
-name: pcb
+name: cc
 channels:
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge
-  - soumith
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda/
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
-  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
@@ -109,18 +104,23 @@ dependencies:
   - zlib=1.2.11=h166bdaf_1014
   - zstd=1.5.2=ha95c52a_0
   - pip:
-    - charset-normalizer==2.0.12
-    - faiss-gpu==1.7.2
-    - h5py==3.6.0
-    - idna==3.3
-    - infomap==2.6.0
-    - metric-learn==0.6.2
-    - requests==2.27.1
-    - scikit-learn==1.1.0
-    - scipy==1.8.0
-    - threadpoolctl==3.1.0
-    - torch==1.11.0
-    - torchvision==0.12.0
-    - typing-extensions==4.2.0
-    - urllib3==1.26.9
-#prefix: /home/lpn/miniconda3/envs/cc
+      - blessed==1.20.0
+      - charset-normalizer==2.0.12
+      - faiss-gpu==1.7.2
+      - gpustat==1.1
+      - h5py==3.6.0
+      - idna==3.3
+      - infomap==2.6.0
+      - metric-learn==0.6.2
+      - nvidia-ml-py==11.525.112
+      - psutil==5.9.5
+      - requests==2.27.1
+      - scikit-learn==1.1.0
+      - scipy==1.8.0
+      - threadpoolctl==3.1.0
+      - torch==1.11.0
+      - torchvision==0.12.0
+      - typing-extensions==4.2.0
+      - urllib3==1.26.9
+      - wcwidth==0.2.6
+prefix: /data1/lpn/miniconda3/envs/cc
