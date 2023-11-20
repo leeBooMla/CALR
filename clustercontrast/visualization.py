@@ -125,7 +125,7 @@ def visualization_cam(x,yc,yp,yf):
     for i, (x, y) in enumerate(X_tsne):
         image_path = yf[i]
         #image = mpimg.imread(image_path)
-        image = Image.open('/data/lpn/dataset/msmt17/MSMT17_V1/'+image_path)
+        image = Image.open('/data1/lpn/dataset/msmt17/MSMT17_V1/'+image_path)
         resized_image = image.resize((128, 256))
         resized_image_array = np.array(resized_image)
         camera_label = yc[i]

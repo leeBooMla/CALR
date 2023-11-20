@@ -97,5 +97,5 @@ class ClusterMemory(nn.Module, ABC):
             outputs = cm(inputs, targets, self.features, self.momentum)
 
         outputs /= self.temp
-        loss = F.cross_entropy(outputs, targets, weight=self.weights)
+        loss = F.cross_entropy(outputs, targets) #, weight=self.weights)
         return loss
