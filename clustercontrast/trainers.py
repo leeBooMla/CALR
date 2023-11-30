@@ -49,7 +49,7 @@ class ClusterContrastTrainer(object):
             pred_mean = torch.softmax(domain_output, dim=1).mean(0)
             penalty = torch.sum(prior*torch.log(prior/pred_mean))'''
 
-            loss = loss_nce #+ err_s_domain #+penalty
+            loss = loss_nce + err_s_domain #+penalty
             #loss = self.memory(f_out, labels) + F.cross_entropy(prob, labels)
 
             optimizer.zero_grad()
@@ -78,7 +78,7 @@ class ClusterContrastTrainer(object):
     
     def _parse_data_cam(self, inputs):
         imgs, fnames, pids, cids, _ = inputs
-        cids = cids -1
+        #cids = cids - 1
         return imgs.cuda(), fnames, pids.cuda(), cids.cuda()
 
     def _forward(self, inputs, alpha):

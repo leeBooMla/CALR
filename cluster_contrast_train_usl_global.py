@@ -261,14 +261,14 @@ def main_worker(args):
                 cluster_cam = OrderedDict()
                 fname_cam = {}
                 per_cam_labels = {}
-                for cam in range(1,max(camid)+1):
-                    local_dir  = osp.join('images/msmt17/cam'+str(cam), 'pseudo_label.npy')
+                for cam in range(0,max(camid)+1):
+                    local_dir  = osp.join('images/market/cam'+str(cam+1), 'pseudo_label.npy')
                     local_pseudo_dataset = np.load(local_dir)
                     local_pseudo_dataset = local_pseudo_dataset.tolist()
                     fname_cam[cam] = []
                     pseudo_labels_cam[cam] = []
                     for f, pid, cid in sorted(local_pseudo_dataset):
-                        #f = f[:5]+'1'+f[5:]
+                        f = f[:5]+'1'+f[5:]
                         fname_cam[cam].append(f)
                         pseudo_labels_cam[cam].append(pid)
                     cluster_cam[cam] = get_cluster(pseudo_labels_cam[cam])
@@ -325,6 +325,10 @@ def main_worker(args):
 
         memory.features = F.normalize(cluster_features, dim=1).cuda()
         memory.weights = cluster_weights.cuda()
+        '''if epoch < 5:
+            memory.weights = None
+        else :
+            memory.weights = cluster_weights.cuda()'''
         trainer.memory = memory
         pseudo_labeled_dataset = []
 
@@ -372,7 +376,7 @@ def main_worker(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Self-paced contrastive learning on unsupervised re-ID")
     # data
-    parser.add_argument('-d', '--dataset', type=str, default='msmt17',
+    parser.add_argument('-d', '--dataset', type=str, default='market1501',
                         choices=datasets.names())
     parser.add_argument('-b', '--batch-size', type=int, default=64)
     parser.add_argument('-j', '--workers', type=int, default=4)
@@ -410,7 +414,7 @@ if __name__ == '__main__':
                         help="learning rate")
     parser.add_argument('--weight-decay', type=float, default=5e-4)
     parser.add_argument('--epochs', type=int, default=70)
-    parser.add_argument('--iters', type=int, default=400)
+    parser.add_argument('--iters', type=int, default=200)
     parser.add_argument('--step-size', type=int, default=20)
 
     # training configs
@@ -424,7 +428,7 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, metavar='PATH',
                         default=osp.join( '/data1/lpn/dataset'))
     parser.add_argument('--logs-dir', type=str, metavar='PATH',
-                        default=osp.join(working_dir, 'logs/msmt/Cam_AG'))
+                        default=osp.join(working_dir, 'logs/market/Cam_AG'))
     parser.add_argument('--pooling-type', type=str, default='gem')
     parser.add_argument('--use-hard', action="store_true")
     parser.add_argument('--no-cam', action="store_true")

@@ -76,7 +76,7 @@ class ResNetIBN(nn.Module):
             self.domain_classifier.add_module('d_fc2',nn.Linear(100,100))
             self.domain_classifier.add_module('d_bn2', nn.BatchNorm1d(100))
             self.domain_classifier.add_module('d_relu', nn.ReLU(True))
-            self.domain_classifier.add_module('d_fc3', nn.Linear(100, 15))
+            self.domain_classifier.add_module('d_fc3', nn.Linear(100, 6))
             self.domain_classifier.add_module('d_softmax', nn.LogSoftmax(dim=1))
 
         init.constant_(self.feat_bn.weight, 1)
