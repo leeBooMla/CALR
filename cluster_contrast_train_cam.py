@@ -176,7 +176,6 @@ def main_worker(args):
                                  linkage='average')
             pseudo_labels = Ag.fit_predict(rerank_dist)
             #cluster = get_cluster(pseudo_labels)
-            silhouette = metrics.silhouette_score(rerank_dist, pseudo_labels, metric='precomputed')
             precision_global, recall_global, fscore_global,precision_global_b, recall_global_b, fscore_global_b, expansion_global,nmi_global = evaluate_global(labels, pseudo_labels, precision_global, recall_global, fscore_global,precision_global_b, recall_global_b, fscore_global_b, expansion_global,nmi_global)
             num_cluster = len(set(pseudo_labels)) - (1 if -1 in pseudo_labels else 0)
 
@@ -216,6 +215,7 @@ def main_worker(args):
 
         print('==> Statistics for epoch {}: {} clusters'.format(epoch, num_cluster))
 
+        np.save('images/veri/cam20/pseudo_label.npy', np.array(pseudo_labeled_dataset))
         train_loader = get_train_loader(args, dataset, args.height, args.width,
                                         args.batch_size, args.workers, args.num_instances, iters,
                                         trainset=pseudo_labeled_dataset, no_cam=args.no_cam)
@@ -226,6 +226,7 @@ def main_worker(args):
                       print_freq=args.print_freq, train_iters=len(train_loader))
 
         if (epoch + 1) % args.eval_step == 0 or (epoch == args.epochs - 1):
+            silhouette = metrics.silhouette_score(rerank_dist, pseudo_labels, metric='precomputed')
             is_best = (silhouette > best_mAP)
             best_mAP = max(silhouette, best_mAP)
             if is_best:
@@ -234,7 +235,7 @@ def main_worker(args):
                     'epoch': epoch + 1,
                     'best_mAP': best_mAP,
                 }, is_best, fpath=osp.join(args.logs_dir, 'checkpoint.pth.tar'))
-                np.save('images/msmt17/cam15/pseudo_label.npy', np.array(pseudo_labeled_dataset))
+                np.save('images/veri/cam20/pseudo_label.npy', np.array(pseudo_labeled_dataset))
             print('\n * Finished epoch {:3d}  silhouette: {:5.1%}  best: {:5.1%}{}\n'.
                   format(epoch, silhouette, best_mAP, ' *' if is_best else ''))
             '''mAP = evaluator.evaluate(test_loader, dataset.query, dataset.gallery, cmc_flag=False)
@@ -264,25 +265,25 @@ def main_worker(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Self-paced contrastive learning on unsupervised re-ID")
     # data
-    parser.add_argument('-d', '--dataset', type=str, default='msmt17',
+    parser.add_argument('-d', '--dataset', type=str, default='veri',
                         choices=datasets.names())
     parser.add_argument('-b', '--batch-size', type=int, default=64)
     parser.add_argument('-j', '--workers', type=int, default=4)
-    parser.add_argument('--height', type=int, default=256, help="input height")
-    parser.add_argument('--width', type=int, default=128, help="input width")
+    parser.add_argument('--height', type=int, default=224, help="input height")
+    parser.add_argument('--width', type=int, default=224, help="input width")
     parser.add_argument('--num-instances', type=int, default=4,
                         help="each minibatch consist of "
                              "(batch_size // num_instances) identities, and "
                              "each identity has num_instances instances, "
                              "default: 0 (NOT USE)")
     # cluster
-    parser.add_argument('--eps', type=float, default=0.4,
+    parser.add_argument('--eps', type=float, default=0.6,
                         help="max neighbor distance for DBSCAN")
     parser.add_argument('--eps-gap', type=float, default=0.02,
                         help="multi-scale criterion for measuring cluster reliability")
-    parser.add_argument('--k1', type=int, default=30,
+    parser.add_argument('--k1', type=int, default=15,
                         help="hyperparameter for jaccard distance")
-    parser.add_argument('--k2', type=int, default=6,
+    parser.add_argument('--k2', type=int, default=4,
                         help="hyperparameter for jaccard distance")
 
     # model
@@ -290,13 +291,13 @@ if __name__ == '__main__':
                         choices=models.names())
     parser.add_argument('--features', type=int, default=0)
     parser.add_argument('--dropout', type=float, default=0)
-    parser.add_argument('--momentum', type=float, default=0.2,
+    parser.add_argument('--momentum', type=float, default=0.1,
                         help="update momentum for the hybrid memory")
     # optimizer
     parser.add_argument('--lr', type=float, default=0.00035,
                         help="learning rate")
     parser.add_argument('--weight-decay', type=float, default=5e-4)
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=25)
     parser.add_argument('--iters', type=int, default=100)
     parser.add_argument('--step-size', type=int, default=20)
     # training configs
@@ -310,9 +311,9 @@ if __name__ == '__main__':
     #parser.add_argument('--data-dir', type=str, metavar='PATH',
     #                    default=osp.join(working_dir, 'data'))
     parser.add_argument('--data-dir', type=str, metavar='PATH',
-                        default='/data/lpn/dataset')
+                        default='/data3/lpn/dataset')
     parser.add_argument('--logs-dir', type=str, metavar='PATH',
-                        default=osp.join(working_dir, 'logs/msmt/dbscan/cam15'))
+                        default=osp.join(working_dir, 'logs/veri/cam1'))
     parser.add_argument('--pooling-type', type=str, default='gem')
     parser.add_argument('--use-hard', action="store_true")
     parser.add_argument('--no-cam',  action="store_true")

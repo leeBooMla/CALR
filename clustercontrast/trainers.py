@@ -49,7 +49,11 @@ class ClusterContrastTrainer(object):
             pred_mean = torch.softmax(domain_output, dim=1).mean(0)
             penalty = torch.sum(prior*torch.log(prior/pred_mean))'''
 
-            loss = loss_nce + err_s_domain #+penalty
+            if epoch < 3:
+                loss = loss_nce + err_s_domain #+penalty
+            else :
+                loss = loss_nce
+            #loss = loss_nce #+ err_s_domain #+penalty
             #loss = self.memory(f_out, labels) + F.cross_entropy(prob, labels)
 
             optimizer.zero_grad()

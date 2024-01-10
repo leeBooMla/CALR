@@ -76,6 +76,8 @@ class VeRi(BaseImageDataset):
                 continue  # junk images are just ignored
             assert 0 <= pid <= 776  # pid == 0 means background
             assert 1 <= camid <= 20
+            #if camid != 20:
+            #    continue
             camid -= 1  # index starts from 0
             if relabel:
                 pid = pid2label[pid]
