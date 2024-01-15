@@ -123,4 +123,4 @@ dependencies:
       - typing-extensions==4.2.0
       - urllib3==1.26.9
       - wcwidth==0.2.6
-prefix: /data1/lpn/miniconda3/envs/cc
+prefix: /data1/lpn/miniconda3/envs/calr
