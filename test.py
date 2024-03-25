@@ -10,14 +10,14 @@ from torch import nn
 from torch.backends import cudnn
 from torch.utils.data import DataLoader
 
-from clustercontrast import datasets
-from clustercontrast import models
-from clustercontrast.models.dsbn import convert_dsbn, convert_bn
-from clustercontrast.evaluators import Evaluator
-from clustercontrast.utils.data import transforms as T
-from clustercontrast.utils.data.preprocessor import Preprocessor
-from clustercontrast.utils.logging import Logger
-from clustercontrast.utils.serialization import load_checkpoint, save_checkpoint, copy_state_dict
+from CALR import datasets
+from CALR import models
+from CALR.models.dsbn import convert_dsbn, convert_bn
+from CALR.evaluators import Evaluator
+from CALR.utils.data import transforms as T
+from CALR.utils.data.preprocessor import Preprocessor
+from CALR.utils.logging import Logger
+from CALR.utils.serialization import load_checkpoint, save_checkpoint, copy_state_dict
 
 
 def get_data(name, data_dir, height, width, batch_size, workers):
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--dropout', type=float, default=0)
 
     parser.add_argument('--resume', type=str,
-                        default="/media/yixuan/DATA/cluster-contrast/market-res50/logs/model_best.pth.tar",
+                        default="/data/lpn/CALR/logs/market/model_best.pth.tar",
                         metavar='PATH')
     # testing configs
     parser.add_argument('--rerank', action='store_true',
@@ -118,8 +118,8 @@ if __name__ == '__main__':
     # path
     working_dir = osp.dirname(osp.abspath(__file__))
     parser.add_argument('--data-dir', type=str, metavar='PATH',
-                        default='/media/yixuan/Project/guangyuan/workpalces/SpCL/examples/data')
+                        default='/data1/lpn/dataset')
     parser.add_argument('--pooling-type', type=str, default='gem')
     parser.add_argument('--embedding_features_path', type=str,
-                        default='/media/yixuan/Project/guangyuan/workpalces/SpCL/embedding_features/mark1501_res50_ibn/')
+                        default='')
     main()

@@ -3,14 +3,14 @@
 The *official* repository for [Camera-aware Label Refinement for Unsupervised Person Re-Identification](). We achieve state-of-the-art performances on purly unsupervised tasks for object re-ID.
 
 **Our unified framework**
-![framework](figs/framework.png)
+![framework](figs/framework.jpg)
 
 ## Requirements
 
 ### Installation
 
 ```shell
-git clone https://github.com/alibaba/cluster-contrast-reid.git
+git clone https://github.com/leeBooMla/CALR
 cd CALR
 python setup.py install
 ```
