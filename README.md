@@ -84,7 +84,14 @@ You can download the above models in the paper from [Baidu Yun](https://pan.baid
 
 If you find this code useful for your research, please cite our paper
 ```
-
+@misc{li2024cameraaware,
+      title={Camera-aware Label Refinement for Unsupervised Person Re-identification}, 
+      author={Pengna Li and Kangyi Wu and Wenli Huang and Sanping Zhou and Jinjun Wang},
+      year={2024},
+      eprint={2403.16450},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
 ```
 
 # Acknowledgements
