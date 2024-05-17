@@ -1,6 +1,6 @@
 # Camera-aware Label Refinement for Unsupervised Person Re-Identification
 
-The *official* repository for [Camera-aware Label Refinement for Unsupervised Person Re-Identification](). We achieve state-of-the-art performances on purly unsupervised tasks for object re-ID.
+The *official* repository for [Camera-aware Label Refinement for Unsupervised Person Re-Identification](https://arxiv.org/abs/2403.16450). We achieve state-of-the-art performances on purly unsupervised tasks for object re-ID.
 
 **Our unified framework**
 ![framework](figs/framework.jpg)
