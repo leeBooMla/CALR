@@ -96,4 +96,4 @@ If you find this code useful for your research, please cite our paper
 
 # Acknowledgements
 
-Thanks to Yixiao Ge for opening source of his excellent works  [SpCL](https://github.com/yxgeee/SpCL). 
+Thanks to Yixiao Ge for opening source of her excellent works  [SpCL](https://github.com/yxgeee/SpCL). 
